@@ -39,43 +39,45 @@ const directionalLight = new DirectionalLight(0xffffff, 0.8)
 directionalLight.position.set(1, 1, 1)
 scene.add(directionalLight)
 
-// 用于存储物体的位置
-const positions = []
+{
+    // 用于存储物体的位置
+    const positions = []
 
-// 函数，用于添加物体
-const addObject = (geometry, material) => {
-    const mesh = new Mesh(geometry, material)
+    // 函数，用于添加物体
+    const addObject = (geometry, material) => {
+        const mesh = new Mesh(geometry, material)
 
-    // 随机生成高度
-    const height = Math.random() * 2.5 + 0.5 // 随机高度在 0.5 到 3 之间
-    mesh.scale.y = height // 调整物体的 Y 轴比例
+        // 随机生成高度
+        const height = Math.random() * 2.5 + 0.5 // 随机高度在 0.5 到 3 之间
+        mesh.scale.y = height // 调整物体的 Y 轴比例
 
-    let posX, posZ, overlap
-    do {
-        posX = (Math.random() - 0.5) * 20 // 随机 x 坐标
-        posZ = (Math.random() - 0.5) * 20 // 随机 z 坐标
-        overlap = positions.some(pos => {
-            // 检查当前物体与存储的物体是否重叠
-            return Math.abs(pos.x - posX) < 1 && Math.abs(pos.z - posZ) < 1
-        })
-    } while (overlap)
+        let posX, posZ, overlap
+        do {
+            posX = (Math.random() - 0.5) * 20 // 随机 x 坐标
+            posZ = (Math.random() - 0.5) * 20 // 随机 z 坐标
+            overlap = positions.some(pos => {
+                // 检查当前物体与存储的物体是否重叠
+                return Math.abs(pos.x - posX) < 1 && Math.abs(pos.z - posZ) < 1
+            })
+        } while (overlap)
 
-    mesh.position.set(posX, height / 2, posZ) // 适当设置 y 坐标为物体高度的一半
-    scene.add(mesh)
-    positions.push({ x: posX, z: posZ }) // 保存物体的位置
+        mesh.position.set(posX, height / 2, posZ) // 适当设置 y 坐标为物体高度的一半
+        scene.add(mesh)
+        positions.push({ x: posX, z: posZ }) // 保存物体的位置
+    }
+
+    // 添加不同类型的物体
+    const material = new MeshBasicMaterial({ color: 0x00ff00 })
+    addObject(new BoxGeometry(1, 1, 1), material) // 添加一个立方体
+
+    const sphereMaterial = new MeshBasicMaterial({ color: 0xff0000 })
+    addObject(new SphereGeometry(0.5, 32, 32), sphereMaterial) // 添加一个球体
+
+    const cylinderMaterial = new MeshBasicMaterial({ color: 0x0000ff })
+    addObject(new CylinderGeometry(0.5, 0.5, 1, 32), cylinderMaterial) // 添加一个圆柱体
+
+    camera.position.z = 15
 }
-
-// 添加不同类型的物体
-const material = new MeshBasicMaterial({ color: 0x00ff00 })
-addObject(new BoxGeometry(1, 1, 1), material) // 添加一个立方体
-
-const sphereMaterial = new MeshBasicMaterial({ color: 0xff0000 })
-addObject(new SphereGeometry(0.5, 32, 32), sphereMaterial) // 添加一个球体
-
-const cylinderMaterial = new MeshBasicMaterial({ color: 0x0000ff })
-addObject(new CylinderGeometry(0.5, 0.5, 1, 32), cylinderMaterial) // 添加一个圆柱体
-
-camera.position.z = 15
 
 // const groundGeometry = new BoxGeometry(5, 0.1, 5)
 // const groundMaterial = new MeshBasicMaterial({ color: 0xff0000 })
