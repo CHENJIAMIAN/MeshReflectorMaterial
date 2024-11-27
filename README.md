@@ -36,3 +36,9 @@
 ## 许可证
 
 该项目遵循 MIT 许可证。
+
+---
+
+## English Link
+
+- [English version](README.md)
