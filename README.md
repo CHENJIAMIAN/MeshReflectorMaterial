@@ -1,6 +1,6 @@
 # 提取自 `drei` 的 `Reflector` 和 `MeshReflectorMaterial`
 
-本项目使用 `drei` 库中的 `Reflector` 和 `MeshReflectorMaterial` 实现了高质量的反射效果。
+本项目提供了独立于 React 和 Vue 的 `Reflector`、`MeshReflectorMaterial` 和 `ReflectorMesh`，实现了高质量的反射效果。
 
 ## 资源链接
 
