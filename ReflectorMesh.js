@@ -26,20 +26,23 @@ class ReflectorMesh extends Mesh {
         this.isReflector = true
         this.type = 'Reflector'
         this.options = {
-            mixBlur: 0,
-            mixStrength: 0.5,
-            resolution: 256,
             blur: [0, 0],
-            minDepthThreshold: 0.9,
-            maxDepthThreshold: 1,
+            color: 0x7F7F7F,
             depthScale: 0,
             depthToBlurRatioBias: 0.25,
-            mirror: 0,
-            debug: 0,
             distortion: 1,
-            mixContrast: 1,
             distortionMap: null,
-            color: 0x7F7F7F,
+            maxDepthThreshold: 1,
+            minDepthThreshold: 0.9,
+
+            mirror: 0,
+
+            mixBlur: 0,
+            mixContrast: 1,
+            mixStrength: 0.5,
+
+            opacity: 1,
+            resolution: 256,
             ...options
         }
 
@@ -102,50 +105,57 @@ class ReflectorMesh extends Mesh {
     }
 
     createReflectorMaterial () {
-        const reflectorProps = {
-            color: new Color(this.options.color),
-            mirror: this.options.mirror,
-            textureMatrix: this.textureMatrix,
-            mixBlur: this.options.mixBlur,
-            tDiffuse: this.fbo1.texture,
-            tDepth: this.fbo1.depthTexture,
-            tDiffuseBlur: this.fbo2.texture,
-            hasBlur: this.hasBlur,
-            mixStrength: this.options.mixStrength,
-            minDepthThreshold: this.options.minDepthThreshold,
-            maxDepthThreshold: this.options.maxDepthThreshold,
-            depthScale: this.options.depthScale,
-            depthToBlurRatioBias: this.options.depthToBlurRatioBias,
-            transparent: true,
-            debug: this.options.debug,
-            distortion: this.options.distortion,
-            distortionMap: this.options.distortionMap,
-            mixContrast: this.options.mixContrast,
-        }
 
-        const shader = this.getReflectorShader(reflectorProps)
-
+        const shader = this.getReflectorShader()
         const material = new ShaderMaterial({
             name: shader.name,
+            defines: shader.defines,
             uniforms: UniformsUtils.clone(shader.uniforms),
             fragmentShader: shader.fragmentShader,
             vertexShader: shader.vertexShader,
             transparent: true
         })
 
-        material.uniforms['tDiffuse'].value = this.fbo1.texture
-        material.uniforms['tDepth'].value = this.fbo1.depthTexture
-        material.uniforms['tDiffuseBlur'].value = this.fbo2.texture
+        const reflectorProps = {
+            color: new Color(this.options.color),
+            depthScale: this.options.depthScale,
+            depthToBlurRatioBias: this.options.depthToBlurRatioBias,
+            distortion: this.options.distortion,
+            distortionMap: this.options.distortionMap,
+            hasBlur: this.hasBlur,
+            maxDepthThreshold: this.options.maxDepthThreshold,
+            minDepthThreshold: this.options.minDepthThreshold,
+            mirror: this.options.mirror,
+
+            mixBlur: this.options.mixBlur,
+            mixContrast: this.options.mixContrast,
+            mixStrength: this.options.mixStrength,
+
+            opacity: this.options.opacity,
+            tDepth: this.fbo1.depthTexture,
+            tDiffuse: this.fbo1.texture,
+            tDiffuseBlur: this.fbo2.texture,
+            textureMatrix: this.textureMatrix,
+            transparent: true,
+        }
+
         material.uniforms['color'].value = reflectorProps.color
-        material.uniforms['textureMatrix'].value = this.textureMatrix
-        material.uniforms['mixBlur'].value = reflectorProps.mixBlur
-        material.uniforms['mixStrength'].value = reflectorProps.mixStrength
-        material.uniforms['minDepthThreshold'].value = reflectorProps.minDepthThreshold
-        material.uniforms['maxDepthThreshold'].value = reflectorProps.maxDepthThreshold
         material.uniforms['depthScale'].value = reflectorProps.depthScale
         material.uniforms['depthToBlurRatioBias'].value = reflectorProps.depthToBlurRatioBias
         material.uniforms['distortion'].value = reflectorProps.distortion
+        material.uniforms['maxDepthThreshold'].value = reflectorProps.maxDepthThreshold
+        material.uniforms['minDepthThreshold'].value = reflectorProps.minDepthThreshold
+        material.uniforms['mirror'].value = reflectorProps.mirror
+
+        material.uniforms['mixBlur'].value = reflectorProps.mixBlur
         material.uniforms['mixContrast'].value = reflectorProps.mixContrast
+        material.uniforms['mixStrength'].value = reflectorProps.mixStrength
+
+        material.uniforms['opacity'].value = reflectorProps.opacity
+        material.uniforms['tDepth'].value = this.fbo1.depthTexture
+        material.uniforms['tDiffuse'].value = this.fbo1.texture
+        material.uniforms['tDiffuseBlur'].value = this.fbo2.texture
+        material.uniforms['textureMatrix'].value = this.textureMatrix
         if (reflectorProps.distortionMap) {
             material.uniforms['distortionMap'].value = reflectorProps.distortionMap
             material.defines['USE_DISTORTION'] = ''
@@ -156,45 +166,55 @@ class ReflectorMesh extends Mesh {
         this.material = material
     }
 
-    getReflectorShader (reflectorProps) {
+    getReflectorShader () {
         return {
             name: 'ReflectorShader',
+            defines: {
+                USE_UV: ''
+            },
             uniforms: {
-                'color': { value: null },
-                'tDiffuse': { value: null },
-                'tDepth': { value: null },
-                'tDiffuseBlur': { value: null },
-                'textureMatrix': { value: null },
-                'mixBlur': { value: 0 },
-                'mixStrength': { value: 0.5 },
-                'minDepthThreshold': { value: 0 },
-                'maxDepthThreshold': { value: 1 },
+                'color': { value: new Color('white') },
                 'depthScale': { value: 0 },
                 'depthToBlurRatioBias': { value: 0.25 },
                 'distortion': { value: 1 },
                 'distortionMap': { value: null },
-                'mixContrast': { value: 1 }
+                'maxDepthThreshold': { value: 1 },
+                'minDepthThreshold': { value: 0 },
+                'mirror': { value: 0 },
+
+                'mixBlur': { value: 0 },
+                'mixContrast': { value: 1 },
+                'mixStrength': { value: 0.5 },
+
+                'opacity': { value: 1 },
+                'tDepth': { value: null },
+                'tDiffuse': { value: null },
+                'tDiffuseBlur': { value: null },
+                'textureMatrix': { value: null },
             },
             vertexShader: /* glsl */ `
                 uniform mat4 textureMatrix;
-                varying vec4 vUv;
-                varying float vDepth;
+                varying vec4 my_vUv;
 
                 #include <common>
-                #include <logdepthbuf_pars_vertex>
+                #include <uv_pars_vertex>
 
                 void main() {
-                    vUv = textureMatrix * vec4(position, 1.0);
+
+	                #include <uv_vertex>
+
+                    my_vUv = textureMatrix * vec4(position, 1.0);
+
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                     
-                    #include <logdepthbuf_vertex>
-                    vDepth = gl_Position.z;
                 }`,
             fragmentShader: /* glsl */ `
                 uniform vec3 color;
+                uniform float opacity;
                 uniform sampler2D tDiffuse;
                 uniform sampler2D tDepth;
                 uniform sampler2D tDiffuseBlur;
+                uniform float mirror;
                 uniform float mixBlur;
                 uniform float mixStrength;
                 uniform float minDepthThreshold;
@@ -203,74 +223,80 @@ class ReflectorMesh extends Mesh {
                 uniform float depthToBlurRatioBias;
                 uniform float distortion;
                 uniform float mixContrast;
-
-                #ifdef USE_DISTORTION
-                    uniform sampler2D distortionMap;
-                #endif
-
-                varying vec4 vUv;
-                varying float vDepth;
+                uniform sampler2D distortionMap;
+                varying vec4 my_vUv;
 
                 #include <common>
-                #include <logdepthbuf_pars_fragment>
                 #include <packing>
-
-                float blendOverlay(float base, float blend) {
-                    return(base < 0.5 ? (2.0 * base * blend) : (1.0 - 2.0 * (1.0 - base) * (1.0 - blend)));
-                }
-
-                vec3 blendOverlay(vec3 base, vec3 blend) {
-                    return vec3(blendOverlay(base.r, blend.r), blendOverlay(base.g, blend.g), blendOverlay(base.b, blend.b));
-                }
-
-                float getBlurFactor(float depth) {
-                    float blurFactor = clamp((depth - minDepthThreshold) / (maxDepthThreshold - minDepthThreshold), 0.0, 1.0 );
-                    
-                    #ifdef USE_DEPTH
-                        float depthFactor = pow(depth * depthScale, depthToBlurRatioBias);
-                        blurFactor = mix(blurFactor, depthFactor, saturate(depthScale));
-                    #endif
-                    
-                    return blurFactor;
-                }
+                #include <uv_pars_fragment>
 
                 void main() {
-                    #include <logdepthbuf_fragment>
-                    vec4 base = texture2DProj(tDiffuse, vUv);
-                    
-                    #ifdef USE_BLUR
-                        float depth = texture2DProj(tDepth, vUv).r;
-                        float blurFactor = getBlurFactor(depth);
-                        vec4 blur = texture2DProj(tDiffuseBlur, vUv);
 
-                        vec3 finalColor = mix(base.rgb, blur.rgb, blurFactor * mixBlur);
-                    #else
-                        vec3 finalColor = base.rgb;
-                    #endif
-
+                    float distortionFactor = 0.0;
                     #ifdef USE_DISTORTION
-                        vec2 distortionUV = vUv.xy;
-                        
-                        #ifdef USE_DEPTH
-                            float depth = texture2DProj(tDepth, vUv).r;
-                            float distortionFactor = getBlurFactor(depth);
-                            distortionUV += (texture2D(distortionMap, distortionUV).rg * 2.0 - 1.0) * distortion * distortionFactor;
-                        #else
-                            distortionUV += (texture2D(distortionMap, distortionUV).rg * 2.0 - 1.0) * distortion;
-                        #endif
-
-                        vec4 distortedBase = texture2DProj(tDiffuse, vec4(distortionUV, vUv.z, vUv.w));
-                        #ifdef USE_BLUR
-                            vec4 distortedBlur = texture2DProj(tDiffuseBlur, vec4(distortionUV, vUv.z, vUv.w));
-                            finalColor = mix(distortedBase.rgb, distortedBlur.rgb, blurFactor * mixBlur);
-                        #else
-                            finalColor = distortedBase.rgb;
-                        #endif
+                        distortionFactor = texture2D(distortionMap, vUv).r * distortion;
                     #endif
 
-                    gl_FragColor = vec4( blendOverlay(finalColor, color * mixStrength) , 1.0);
-                    float contrastFactor = (1.0 + mixContrast) / (1.0 - mixContrast);
-                        gl_FragColor.rgb = (gl_FragColor.rgb - 0.5) * contrastFactor + 0.5;
+                    vec4 new_vUv = my_vUv;
+                    new_vUv.x += distortionFactor;
+                    new_vUv.y += distortionFactor;
+
+                    vec4 base = texture2DProj(tDiffuse, new_vUv);
+                    vec4 blur = texture2DProj(tDiffuseBlur, new_vUv);
+
+                    vec4 merge = base;
+
+                    #ifdef USE_NORMALMAP
+                        vec2 normal_uv = vec2(0.0);
+                        vec4 normalColor = texture2D(normalMap, vUv * normalScale);
+                        vec3 my_normal = normalize( vec3( normalColor.r * 2.0 - 1.0, normalColor.b,  normalColor.g * 2.0 - 1.0 ) );
+                        vec3 coord = new_vUv.xyz / new_vUv.w;
+                        normal_uv = coord.xy + coord.z * my_normal.xz * 0.05;
+                        vec4 base_normal = texture2D(tDiffuse, normal_uv);
+                        vec4 blur_normal = texture2D(tDiffuseBlur, normal_uv);
+                        merge = base_normal;
+                        blur = blur_normal;
+                    #endif
+
+                    float depthFactor = 0.0001;
+                    float blurFactor = 0.0;
+
+                    #ifdef USE_DEPTH
+                        vec4 depth = texture2DProj(tDepth, new_vUv);
+                        depthFactor = smoothstep(minDepthThreshold, maxDepthThreshold, 1.0-(depth.r * depth.a));
+                        depthFactor *= depthScale;
+                        depthFactor = max(0.0001, min(1.0, depthFactor));
+
+                        #ifdef USE_BLUR
+                        blur = blur * min(1.0, depthFactor + depthToBlurRatioBias);
+                        merge = merge * min(1.0, depthFactor + 0.5);
+                        #else
+                        merge = merge * depthFactor;
+                        #endif
+
+                    #endif
+
+                    float reflectorRoughnessFactor = 1.0;//roughness;
+                    #ifdef USE_ROUGHNESSMAP
+                        vec4 reflectorTexelRoughness = texture2D( roughnessMap, vUv );
+                        reflectorRoughnessFactor *= reflectorTexelRoughness.g;
+                    #endif
+
+                    #ifdef USE_BLUR
+                        blurFactor = min(1.0, mixBlur * reflectorRoughnessFactor);
+                        merge = mix(merge, blur, blurFactor);
+                    #endif
+
+                    vec4 newMerge = vec4(0.0, 0.0, 0.0, 1.0);
+                    newMerge.r = (merge.r - 0.5) * mixContrast + 0.5;
+                    newMerge.g = (merge.g - 0.5) * mixContrast + 0.5;
+                    newMerge.b = (merge.b - 0.5) * mixContrast + 0.5;
+
+                    vec3 diffuseColor =color;
+                    diffuseColor.rgb = diffuseColor.rgb * ((1.0 - min(1.0, mirror)) + newMerge.rgb * mixStrength);
+
+                    gl_FragColor = vec4( diffuseColor, opacity);
+                 
                     #include <tonemapping_fragment>
                     #include <colorspace_fragment>
                 }`
@@ -278,6 +304,7 @@ class ReflectorMesh extends Mesh {
     }
 
     onBeforeRender (renderer, scene, camera) {
+
         this.reflectorWorldPosition.setFromMatrixPosition(this.matrixWorld)
         this.cameraWorldPosition.setFromMatrixPosition(camera.matrixWorld)
 
@@ -289,6 +316,7 @@ class ReflectorMesh extends Mesh {
         this.view.subVectors(this.reflectorWorldPosition, this.cameraWorldPosition)
 
         // Avoid rendering when reflector is facing away
+
         if (this.view.dot(this.normal) > 0) return
 
         this.view.reflect(this.normal).negate()
@@ -361,7 +389,9 @@ class ReflectorMesh extends Mesh {
         renderer.shadowMap.autoUpdate = false // Avoid re-computing shadows
 
         renderer.setRenderTarget(this.fbo1)
+
         renderer.state.buffers.depth.setMask(true) // make sure the depth buffer is writable so it can be properly cleared, see #18897
+
         if (renderer.autoClear === false) renderer.clear()
         renderer.render(scene, this.virtualCamera)
 
@@ -373,11 +403,17 @@ class ReflectorMesh extends Mesh {
         renderer.setRenderTarget(currentRenderTarget)
 
         // Restore viewport
+
         const viewport = camera.viewport
+
         if (viewport !== undefined) {
+
             renderer.state.viewport(viewport)
+
         }
+
         this.visible = true
+
     }
 
     getRenderTarget () {

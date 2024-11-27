@@ -83,24 +83,26 @@ const textureLoader = new TextureLoader()
 const distortionMap = textureLoader.load('./dist_map.jpeg') // Replace with your texture path
 const normalMap = textureLoader.load('./NORM.jpg') // Load the normal map
 
-const geometry = new PlaneGeometry(10, 10)
+const geometry = new PlaneGeometry(20, 20)
+// const geometry = new SphereGeometry(5, 32, 32);
+// const geometry = new BoxGeometry(5, 5, 5);
 const reflector = new ReflectorMesh(geometry, {
     resolution: 1024, // Render target resolution
-    mixBlur: 10, // Amount of blur
-    mixStrength: 2, // Reflection strength
+    mixBlur: 1, // Amount of blur
     blur: 500, // Blur kernel size
-    mirror: 0.75,
+    mixStrength: 2, // Reflection strength
+    mirror: 1,
+    // opacity: 0.3,
     minDepthThreshold: 0.8,
     maxDepthThreshold: 1.2,
     depthToBlurRatioBias: 0.25,
     // mixContrast: 1,
     // depthScale: 1,
-    // debug: 0,
-    distortion: 0.2,
-    distortionMap: distortionMap,
-    color: new Color('#a0a0a0'),
+    // distortion: 0.2,
+    // distortionMap: distortionMap,
+    color: new Color('lightslategrey'),
 })
-
+reflector.rotation.set(-Math.PI / 2, 0, 0)
 scene.add(reflector)
 
 window.scene = scene
