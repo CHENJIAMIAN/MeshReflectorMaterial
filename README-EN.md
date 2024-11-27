@@ -41,4 +41,4 @@ This project is licensed under the MIT License.
 
 ## 中文链接
 
-- [中文版本](README.zh.md)
+- [中文版本](README.md)
