@@ -1,3 +1,11 @@
+[English](./README.en.md)
+
+<!-- codex-github-rules:bilingual-summary -->
+> **中文简介**：脱离 React 和 Vue 的 Reflector、MeshReflectorMaterial 与 ReflectorMesh 实现
+>
+> **English summary**: Framework-independent implementations of Reflector, MeshReflectorMaterial, and ReflectorMesh
+
+---
 # 提取自 `drei` 的 `Reflector` 和 `MeshReflectorMaterial`
 
 本项目提供了独立于 React 和 Vue 的 `Reflector`、`MeshReflectorMaterial` 和 `ReflectorMesh`，实现了高质量的反射效果。
